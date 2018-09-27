@@ -91,7 +91,7 @@ void TBitField::ClrBit(const int n) // очистить бит
 {
 	if (n >= 0 && n < BitLen)
 	{
-		int num = n / (sizeof(TELEM)*8);// в какой ячейке массива содержится бит
+		int num = GetMemIndex(n);// в какой ячейке массива содержится бит
 		int position = n % (sizeof(TELEM)*8);// на какой позиции находится бит в ячейке массива
 		pMem[num] = pMem[num]  & ~GetMemMask(position);
 	}
@@ -141,7 +141,15 @@ TBitField& TBitField::operator=(const TBitField &bf) // присваивание
 
 int TBitField::operator==(const TBitField &bf) const // сравнение
 {
-  return (BitLen == bf.GetLength() && MemLen==bf.MemLen);
+  if (BitLen == bf.GetLength()  && MemLen == bf.MemLen)
+  {
+	  for(int i=0;i< MemLen;i++)
+	  {
+		  if (pMem[i] == bf.pMem[i])
+			  return 1;
+	  }
+  }
+  else return 0;
 
 
 
@@ -164,7 +172,8 @@ int TBitField::operator!=(const TBitField &bf) const // сравнение
 
 TBitField TBitField::operator|(const TBitField &bf) // операция "или"
 {
-	TBitField res(bf.GetLength());
+	//TBitField res(bf.GetLength());
+	TBitField res(BitLen <= bf.GetLength() ? bf.GetLength() : BitLen);
 	for(int i = 0; i < MemLen; i++)
 	{
 		res.pMem[i] = pMem[i] | bf.pMem[i];
@@ -199,6 +208,11 @@ TBitField TBitField::operator~(void) // отрицание
 
 istream &operator>>(istream &istr, TBitField &bf) // ввод
 {
+	
+	for (int i=0;i<bf.MemLen;i++)
+	{
+		istr>> bf.pMem[i];
+	}
 	return istr;
 }
 
